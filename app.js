@@ -9,42 +9,27 @@ for (let index = 0; index < cells.length; index++) {
 // Sets initial state variables --
 let player = "X";
 let gameOver = false;
-let moveNum = 0;
+let populated = [];
 
-// Switches player back and forth from X to O --
-function flipper() {
-    if (player == "X") {
-        player = "O";
-    } else if (player == "O") {
-        player = "X";
+// Each time a cell is clicked --
+function cellClicked() {
+    // If statement determines a play or a page refresh --
+    if (gameOver == false) {
+        cellWrite();
+    } else {
+        location.reload();
     }
 }
 
-// Sets a square to the current player
+// Sets a square to the current player if the square is blank then calls didYouWin --
 function cellWrite() {
-    event.target.textContent = player;
-}
-
-// Checks to see if the game is a draw --
-function countUp() {
-    if (moveNum < 8) {
-        moveNum++;
-    } else {
-        declareWinner("Draw!");
+    if (event.target.textContent == "") {
+        event.target.textContent = player;
+        didYouWin();
     }
 }
 
-//Changes H3 tag to display the winner or a draw --
-function declareWinner(msg) {
-    gameOver = true;
-    if (msg == "X" || msg == "O") {
-        document.getElementById("thewinner").innerHTML = msg + " Wins!";
-    } else {
-        document.getElementById("thewinner").innerHTML = msg;
-    }
-}
-
-// Checks all possible winning combinations on each click event -- 
+// Checks all possible winning combinations and declares winner -- 
 function didYouWin() {
     if (cells[0].textContent == player && cells[1].textContent == player && cells[2].textContent == player) {
         declareWinner(player);
@@ -62,17 +47,45 @@ function didYouWin() {
         declareWinner(player);
     } else if (cells[2].textContent == player && cells[4].textContent == player && cells[6].textContent == player) {
         declareWinner(player);
+    } else {
+        // If no one wins the game on this move, check for a tie --
+        tieGame();
     }
 }
 
-// Each time a cell is clicked --
-function cellClicked() {
-    // If statement prevents players from clicking on more squares once the game is over --
-    if (gameOver == false) {
-        cellWrite();
-        didYouWin();
+// Checks to see if all of the squares are populated --
+function tieGame() {
+    for (let index = 0; index < cells.length; index++) {
+        if (cells[index].textContent != "") {
+            populated[index] = true;
+        }
+    }
+    // I feel like there is a better way to do this but it is not in my toolbox yet --
+    if(populated[0] == true && populated[1] == true && populated[2] == true && populated[3] == true && populated[4] == true && populated[5] == true && populated[6] == true && populated[7] == true && populated[8] == true) {
+        declareWinner("Draw!");
+    } else {
+        // If no winner was called and it is not a draw, call flipper --
         flipper();
-        countUp();
     }
 }
 
+//Changes H2 tag to display the winner or a draw --
+function declareWinner(msg) {
+    gameOver = true;
+    if (msg == "X" || msg == "O") {
+        document.getElementById("thewinner").innerHTML = msg + " Wins!";
+    } else {
+        document.getElementById("thewinner").innerHTML = msg;
+    }
+    // Refreshes the page to play again --
+    document.getElementById("reload").innerHTML = "Click the board to play again!";
+}
+
+// Switches player back and forth from X to O --
+function flipper() {
+    if (player == "X") {
+        player = "O";
+    } else if (player == "O") {
+        player = "X";
+    }
+}
